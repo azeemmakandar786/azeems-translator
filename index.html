@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>Azeem's Translator</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 22px;
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 520px;
+  margin: 25px auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.logo { font-size: 38px; }
+
+h1 { font-size: 27px; margin: 8px; }
+
+.subtitle {
+  color: #9caec5;
+  font-size: 14px;
+}
+
+.language-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+select {
+  flex: 1;
+  min-width: 0;
+  padding: 13px;
+  background: #202d40;
+  color: white;
+  border: 1px solid #35445a;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+button { cursor: pointer; }
+
+.swap {
+  background: #293b55;
+  color: white;
+  border: 0;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 19px;
+}
+
+.panel {
+  background: #1b293c;
+  padding: 16px;
+  border: 1px solid #35445a;
+  border-radius: 16px;
+  margin-bottom: 15px;
+}
+
+.panel-title {
+  color: #a9bbd1;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  resize: vertical;
+  background: transparent;
+  color: white;
+  border: none;
+  outline: none;
+  font-size: 17px;
+  font-family: inherit;
+}
+
+textarea::placeholder { color: #8799b0; }
+
+.panel-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.small-btn {
+  background: #293b55;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 14px;
+}
+
+.translate {
+  width: 100%;
+  padding: 16px;
+  background: #3978f6;
+  color: white;
+  border: none;
+  border-radius: 13px;
+  font-size: 17px;
+  font-weight: bold;
+  margin: 5px 0 17px;
+}
+
+.translate:disabled { opacity: .6; }
+
+.output {
+  min-height: 100px;
+  white-space: pre-wrap;
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  color: #9caec5;
+  font-size: 13px;
+  min-height: 20px;
+  margin-top: 12px;
+}
+
+footer {
+  text-align: center;
+  color: #71839c;
+  font-size: 12px;
+  margin-top: 28px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <div class="logo">🌐</div>
+  <h1>Azeem's Translator</h1>
+  <p class="subtitle">Translate without boundaries.</p>
+</header>
+
+<div class="language-row">
+
+<select id="source">
+  <option value="kn">Kannada</option>
+  <option value="hi">Hindi</option>
+  <option value="en">English</option>
+</select>
+
+<button class="swap" onclick="swapLanguages()">⇄</button>
+
+<select id="target">
+  <option value="en">English</option>
+  <option value="kn">Kannada</option>
+  <option value="hi">Hindi</option>
+</select>
+
+</div>
+
+<div class="panel">
+  <div class="panel-title">YOUR TEXT</div>
+
+  <textarea id="input"
+  placeholder="Type or paste your text here..."></textarea>
+
+  <div class="panel-actions">
+    <button class="small-btn" onclick="pasteText()">📋 Paste</button>
+    <button class="small-btn" onclick="clearText()">✕ Clear</button>
+  </div>
+</div>
+
+<button class="translate" id="translateBtn"
+onclick="translateText()">
+Translate →
+</button>
+
+<div class="panel">
+  <div class="panel-title">TRANSLATION</div>
+
+  <div class="output" id="output">
+Your translation will appear here...
+  </div>
+
+  <div class="panel-actions">
+    <span class="subtitle">Translated text</span>
+    <button class="small-btn" onclick="copyText()">📄 Copy</button>
+  </div>
+
+  <div class="status" id="status"></div>
+</div>
+
+<footer>
+Azeem's Translator © 2026
+</footer>
+
+</div>
+
+<script>
+
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+const source = document.getElementById("source");
+const target = document.getElementById("target");
+const statusBox = document.getElementById("status");
+const translateBtn = document.getElementById("translateBtn");
+
+async function pasteText() {
+  try {
+    input.value = await navigator.clipboard.readText();
+    statusBox.textContent = "Text pasted!";
+  } catch {
+    statusBox.textContent =
+      "Clipboard unavailable. Long-press the box and select Paste.";
+  }
+}
+
+async function copyText() {
+  const text = output.innerText.trim();
+
+  if (!text || text === "Your translation will appear here...") {
+    statusBox.textContent = "Nothing to copy yet.";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    statusBox.textContent = "Copied successfully! ✓";
+  } catch {
+    statusBox.textContent =
+      "Please select and copy the text manually.";
+  }
+}
+
+function clearText() {
+  input.value = "";
+  output.textContent = "Your translation will appear here...";
+  statusBox.textContent = "";
+}
+
+function swapLanguages() {
+  const oldSource = source.value;
+
+  source.value = target.value;
+  target.value = oldSource;
+
+  const oldInput = input.value;
+
+  input.value =
+    output.textContent.trim() ===
+    "Your translation will appear here..."
+    ? ""
+    : output.textContent.trim();
+
+  output.textContent =
+    oldInput || "Your translation will appear here...";
+
+  statusBox.textContent = "";
+}
+
+async function translateText() {
+
+  const text = input.value.trim();
+
+  if (!text) {
+    statusBox.textContent = "Please enter some text first.";
+    return;
+  }
+
+  if (source.value === target.value) {
+    statusBox.textContent = "Choose two different languages.";
+    return;
+  }
+
+  translateBtn.disabled = true;
+  translateBtn.textContent = "Translating...";
+  statusBox.textContent = "Please wait...";
+
+  try {
+
+    const url = new URL(
+      "https://api.mymemory.translated.net/get"
+    );
+
+    url.searchParams.set("q", text);
+
+    url.searchParams.set(
+      "langpair",
+      source.value + "|" + target.value
+    );
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Network error");
+    }
+
+    const data = await response.json();
+
+    if (data.responseStatus !== 200) {
+      throw new Error("Translation failed");
+    }
+
+    output.textContent =
+      data.responseData.translatedText;
+
+    statusBox.textContent = "Translation complete! ✓";
+
+  } catch (error) {
+
+    statusBox.textContent =
+      "Translation failed. Check internet and try again.";
+
+  } finally {
+
+    translateBtn.disabled = false;
+    translateBtn.textContent = "Translate →";
+
+  }
+}
+
+</script>
+</body>
+</html>
